@@ -62,6 +62,40 @@ WARNING
 
 private
 
+  # runs more - the Less CSS compiler
+  def run_assets_precompile_rake_task
+    instrument "rails3.run_assets_precompile_rake_task" do
+      log("assets_precompile") do
+        precompile = rake.task("more:generate")
+        return true unless precompile.is_defined?
+
+        topic("Preparing for Less CSS compilation")
+
+        precompile.invoke(:env => rake_env)
+
+        if precompile.success?
+          log "assets_precompile", :status => "success"
+          puts "Asset precompilation completed (#{"%.2f" % precompile.time}s)"
+        else
+          precompile_fail(precompile.output)
+        end
+      end
+    end
+  end
+
+  def rake_env
+    if user_env_hash.empty?
+      default_env = {
+        "RAILS_ENV"    => ENV["RAILS_ENV"]    || "production"
+      }
+    else
+      default_env = {
+        "RAILS_ENV"    => "production"
+      }
+    end
+    default_env.merge(user_env_hash)
+  end
+
   def install_plugins
     instrument "rails2.install_plugins" do
       plugins = ["rails_log_stdout"].reject { |plugin| bundler.has_gem?(plugin) }
