@@ -14,8 +14,7 @@ Encoding.default_external = Encoding::UTF_8 if defined?(Encoding)
 class LanguagePack::Base
   include LanguagePack::ShellHelpers
 
-  VENDOR_URL      = ENV['BUILDPACK_VENDOR_URL'] || "https://s3-external-1.amazonaws.com/heroku-buildpack-ruby"
-  UNSUPPORTED_URL = "https://s3-external-1.amazonaws.com/heroku-buildpack-ruby/unsupported"
+  VENDOR_URL      = "https://s3-external-1.amazonaws.com/heroku-buildpack-ruby"
 
   attr_reader :build_path, :cache
 
@@ -30,10 +29,15 @@ class LanguagePack::Base
       @id           = Digest::SHA1.hexdigest("#{Time.now.to_f}-#{rand(1000000)}")[0..10]
       @warnings     = []
       @deprecations = []
-      @fetchers     = {:buildpack => LanguagePack::Fetcher.new(VENDOR_URL), :unsupported => LanguagePack::Fetcher.new(UNSUPPORTED_URL)}
+      @fetchers     = {:buildpack => LanguagePack::Fetcher.new(vendor_url), :unsupported => LanguagePack::Fetcher.new(vendor_url("unsupported"))}
 
       Dir.chdir build_path
     end
+  end
+
+  def vendor_url(path = nil)
+    base = env('BUILDPACK_VENDOR_URL') || VENDOR_URL
+    path ? File.join(base, path) : base
   end
 
   def instrument(*args, &block)
@@ -165,4 +169,3 @@ private ##################################
     end.join(" ")
   end
 end
-

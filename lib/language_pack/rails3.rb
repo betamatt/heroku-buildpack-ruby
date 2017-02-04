@@ -51,7 +51,7 @@ private
         warn "Injecting plugin '#{plugin}'"
       end
       warn "Add 'rails_12factor' gem to your Gemfile to skip plugin injection"
-      LanguagePack::Helpers::PluginsInstaller.new(plugins.keys).install
+      LanguagePack::Helpers::PluginsInstaller.new(plugins.keys, vendor_url).install
     end
   end
 

@@ -9,8 +9,6 @@ class LanguagePack::Helpers::BundlerWrapper
     end
   end
 
-  VENDOR_URL         = LanguagePack::Base::VENDOR_URL                # coupling
-  DEFAULT_FETCHER    = LanguagePack::Fetcher.new(VENDOR_URL)         # coupling
   BUNDLER_DIR_NAME   = LanguagePack::Ruby::BUNDLER_GEM_PATH          # coupling
   BUNDLER_PATH       = File.expand_path("../../../../tmp/#{BUNDLER_DIR_NAME}", __FILE__)
   GEMFILE_PATH       = Pathname.new "./Gemfile"
@@ -18,7 +16,7 @@ class LanguagePack::Helpers::BundlerWrapper
   attr_reader   :bundler_path
 
   def initialize(options = {})
-    @fetcher              = options[:fetcher]      || DEFAULT_FETCHER
+    @fetcher              = options[:fetcher]      || LanguagePack::Fetcher.new(vendor_url)
     @bundler_path         = options[:bundler_path] || File.join(Dir.mktmpdir, "#{BUNDLER_DIR_NAME}")
     @gemfile_path         = options[:gemfile_path] || GEMFILE_PATH
     @bundler_tar          = options[:bundler_tar]  || "#{BUNDLER_DIR_NAME}.tgz"
@@ -26,6 +24,10 @@ class LanguagePack::Helpers::BundlerWrapper
     @orig_bundle_gemfile  = ENV['BUNDLE_GEMFILE']
     ENV['BUNDLE_GEMFILE'] = @gemfile_path.to_s
     @path                 = Pathname.new "#{@bundler_path}/gems/#{BUNDLER_DIR_NAME}/lib"
+  end
+
+  def vendor_url
+    env('BUILDPACK_VENDOR_URL') || LanguagePack::Base::VENDOR_URL
   end
 
   def install

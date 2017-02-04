@@ -90,7 +90,7 @@ private
     instrument "rails2.install_plugins" do
       plugins = ["rails_log_stdout"].reject { |plugin| bundler.has_gem?(plugin) }
       topic "Rails plugin injection"
-      LanguagePack::Helpers::PluginsInstaller.new(plugins).install
+      LanguagePack::Helpers::PluginsInstaller.new(plugins, vendor_url).install
     end
   end
 
